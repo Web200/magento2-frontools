@@ -12,12 +12,14 @@ import sourcemaps from 'gulp-sourcemaps'
 import cssnano from 'cssnano'
 import autoprefixer from 'autoprefixer'
 import postcss from 'gulp-postcss'
+import header from 'gulp-header';
+import fs from 'fs';
 
 import configLoader from '../helpers/config-loader'
 import sassError from './sass-error'
 import { env, themes, tempPath, projectPath, browserSyncInstances } from '../helpers/config'
 
-export default function(name, file) {
+export default function(name, file, storeName) {
   const theme = themes[name]
   const srcBase = path.join(tempPath, theme.dest)
   const stylesDir = theme.stylesDir ? theme.stylesDir : 'styles'
@@ -54,8 +56,20 @@ export default function(name, file) {
     return file
   }
 
+  let storeFile = null;
+  let addHeader = false;
+  let storeDestPath = '';
+  if (storeName) {
+    let storePath = path.join(projectPath, theme.src, stylesDir, 'stores', '_' + storeName + '.scss')
+    if (fs.existsSync(storePath)) {
+      storeFile = fs.readFileSync(storePath)
+      addHeader = true;
+      storeDestPath = path.join('stores', storeName);
+    }
+  }
+
   theme.locale.forEach(locale => {
-    dest.push(path.join(projectPath, theme.dest, locale))
+    dest.push(path.join(projectPath, theme.dest, locale, storeDestPath))
   })
 
   const gulpTask = src( // eslint-disable-line one-var
@@ -70,6 +84,7 @@ export default function(name, file) {
         })
       )
     )
+    .pipe(gulpIf(addHeader, header(storeFile)))
     .pipe(gulpIf(!disableMaps, sourcemaps.init()))
     .pipe(gulpSass({ includePaths: includePaths }).on('error', sassError(env.ci || false)))
     .pipe(gulpIf(production, postcss([cssnano()])))
