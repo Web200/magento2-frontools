@@ -29,6 +29,7 @@ export const watch = () => {
     const themeTempSrc = path.join(tempPath, theme.dest)
     const themeDest = path.join(projectPath, theme.dest)
     const themeSrc = [path.join(projectPath, theme.src)]
+    const themesData = configLoader('themes.json')
 
     // Add modules source directeoried to theme source paths array
     if (theme.modules) {
@@ -148,7 +149,17 @@ export const watch = () => {
       if (path.extname(filePath) === '.scss') {
         Object.keys(sassDependecyTree).forEach(file => {
           if (sassDependecyTree[file].includes(filePath)) {
-            sass(name, file)
+
+            let storePath = projectPath + themesData[name].src + '/styles/stores';
+            if (fs.existsSync(storePath) && themesData[name].multipleStore) {
+              fs.readdir(storePath, (err, files) => {
+                files.forEach(storeFile => {
+                  sass(name, file, storeFile.replace('_','').replace('.scss',''))
+                });
+              });
+            } else {
+              sass(name, file)
+            }
           }
         })
       }
