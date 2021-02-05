@@ -58,25 +58,31 @@ export default function(name, file, storeName) {
   }
 
   function adjustStoreDestinationDirectory(file) {
-    file.dirname = file.dirname.replace(stylesDir, '')
+    if (file.dirname.startsWith(stylesDir)) {
+      file.dirname = file.dirname.replace(stylesDir, 'css')
+    }
+    else {
+      file.dirname = file.dirname.replace('/' + stylesDir, '')
+    }
 
+    if (storeName!==undefined) {
+      file.basename = storeName + '_' + file.basename
+    }
     return file
   }
 
   let storeFile = null;
   let addHeader = false;
-  let storeDestPath = '';
   if (storeName) {
     let storePath = path.join(projectPath, theme.src, stylesDir, 'stores', '_' + storeName + '.scss')
     if (fs.existsSync(storePath)) {
       storeFile = fs.readFileSync(storePath)
       addHeader = true;
-      storeDestPath = path.join('css', 'stores', storeName);
     }
   }
 
   theme.locale.forEach(locale => {
-    dest.push(path.join(projectPath, theme.dest, locale, storeDestPath))
+    dest.push(path.join(projectPath, theme.dest, locale))
   })
 
   const gulpTask = src( // eslint-disable-line one-var
