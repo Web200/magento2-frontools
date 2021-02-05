@@ -53,6 +53,13 @@ export default function(name, file, storeName) {
     else {
       file.dirname = file.dirname.replace('/' + stylesDir, '')
     }
+
+    return file
+  }
+
+  function adjustStoreDestinationDirectory(file) {
+    file.dirname = file.dirname.replace(stylesDir, '')
+
     return file
   }
 
@@ -91,7 +98,7 @@ export default function(name, file, storeName) {
     .pipe(gulpIf(postcssConfig.length, postcss(postcssConfig || [])))
     .pipe(gulpIf(production && !disableSuffix, rename({ suffix: '.min' })))
     .pipe(gulpIf(!disableMaps, sourcemaps.write('.', { includeContent: true })))
-    .pipe(rename(adjustDestinationDirectory))
+    .pipe(gulpIf(storeName, rename(adjustDestinationDirectory), rename(adjustStoreDestinationDirectory)))
     .pipe(multiDest(dest))
     .pipe(logger({
       display   : 'name',
