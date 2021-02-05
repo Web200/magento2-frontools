@@ -64,7 +64,7 @@ export default function(name, file, storeName) {
     if (fs.existsSync(storePath)) {
       storeFile = fs.readFileSync(storePath)
       addHeader = true;
-      storeDestPath = path.join('stores', storeName);
+      storeDestPath = path.join('css', 'stores', storeName);
     }
   }
 
