@@ -78,6 +78,16 @@ export default function(name, file, storeName) {
     if (fs.existsSync(storePath)) {
       storeFile = fs.readFileSync(storePath)
       addHeader = true;
+
+    }
+  }
+
+  function getSourceMapFile(storeName, file)
+  {
+    if (storeName) {
+      return storeName + '_' + file.basename + '.map'
+    } else {
+      return file.basename + '.map'
     }
   }
 
@@ -103,7 +113,9 @@ export default function(name, file, storeName) {
     .pipe(gulpIf(production, postcss([cssnano()])))
     .pipe(gulpIf(postcssConfig.length, postcss(postcssConfig || [])))
     .pipe(gulpIf(production && !disableSuffix, rename({ suffix: '.min' })))
-    .pipe(gulpIf(!disableMaps, sourcemaps.write('.', { includeContent: true })))
+    .pipe(gulpIf(!disableMaps, sourcemaps.write('.', { sourceMappingURL: function(file) {
+      return getSourceMapFile(storeName, file);
+    }, includeContent: true })))
     .pipe(gulpIf(storeName, rename(adjustDestinationDirectory), rename(adjustStoreDestinationDirectory)))
     .pipe(multiDest(dest))
     .pipe(logger({
