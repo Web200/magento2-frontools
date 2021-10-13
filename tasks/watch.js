@@ -22,6 +22,7 @@ export const watch = () => {
 
   // Chokidar watcher config
   const watcherConfig = configLoader('watcher.json')
+  const specificStore = env.store || false
   watcherConfig.ignoreInitial = true
 
   getThemes().forEach(name => {
@@ -154,7 +155,12 @@ export const watch = () => {
             if (fs.existsSync(storePath) && themesData[name].multipleStore) {
               fs.readdir(storePath, (err, files) => {
                 files.forEach(storeFile => {
-                  sass(name, file, storeFile.replace('_','').replace('.scss',''))
+                  let currentStoreName = storeFile.replace('_','').replace('.scss','');
+                  if (!specificStore) {
+                    sass(name, file, currentStoreName)
+                  } else if (specificStore && specificStore === currentStoreName) {
+                    sass(name, file, currentStoreName)
+                  }
                 });
               });
             } else {
