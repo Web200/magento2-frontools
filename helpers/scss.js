@@ -9,7 +9,7 @@ import logger from 'gulp-logger'
 import plumber from 'gulp-plumber'
 import notify from 'gulp-notify'
 import sourcemaps from 'gulp-sourcemaps'
-import cssnano from 'cssnano'
+import cleanCSS from 'gulp-clean-css'
 import autoprefixer from 'autoprefixer'
 import postcss from 'gulp-postcss'
 import header from 'gulp-header';
@@ -110,7 +110,7 @@ export default function(name, file, storeName) {
     .pipe(gulpIf(addHeader, header(storeFile)))
     .pipe(gulpIf(!disableMaps, sourcemaps.init()))
     .pipe(gulpSass({ includePaths: includePaths }).on('error', sassError(env.ci || false)))
-    .pipe(gulpIf(production, postcss([cssnano()])))
+    .pipe(gulpIf(production, cleanCSS()))
     .pipe(gulpIf(postcssConfig.length, postcss(postcssConfig || [])))
     .pipe(gulpIf(production && !disableSuffix, rename({ suffix: '.min' })))
     .pipe(gulpIf(!disableMaps, sourcemaps.write('.', { sourceMappingURL: function(file) {
