@@ -95,6 +95,8 @@ export default function(name, file, storeName) {
     dest.push(path.join(projectPath, theme.dest, locale))
   })
 
+  const sass = gulpSass(dartSass);
+
   const gulpTask = src( // eslint-disable-line one-var
     file || srcBase + '/**/*.scss',
     { base: srcBase }
@@ -109,7 +111,7 @@ export default function(name, file, storeName) {
     )
     .pipe(gulpIf(addHeader, header(storeFile)))
     .pipe(gulpIf(!disableMaps, sourcemaps.init()))
-    .pipe(gulpSass({ includePaths: includePaths }).on('error', sassError(env.ci || false)))
+    .pipe(sass({ includePaths: includePaths }).on('error', sassError(env.ci || false)))
     .pipe(gulpIf(production, cleanCSS()))
     .pipe(gulpIf(postcssConfig.length, postcss(postcssConfig || [])))
     .pipe(gulpIf(production && !disableSuffix, rename({ suffix: '.min' })))
