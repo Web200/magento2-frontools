@@ -111,7 +111,7 @@ export default function(name, file, storeName) {
     )
     .pipe(gulpIf(addHeader, header(storeFile)))
     .pipe(gulpIf(!disableMaps, sourcemaps.init()))
-    .pipe(sass({ includePaths: includePaths }).on('error', sassError(env.ci || false)))
+    .pipe(sass.sync({ includePaths: includePaths }).on('error', sassError(env.ci || false)))
     .pipe(gulpIf(production, cleanCSS()))
     .pipe(gulpIf(postcssConfig.length, postcss(postcssConfig || [])))
     .pipe(gulpIf(production && !disableSuffix, rename({ suffix: '.min' })))
